@@ -35,23 +35,23 @@ model_name=$(basename "$selected_model" | tr '[:upper:]' '[:lower:]')
 CONTEXT=262144
 extra_args=""
 if [[ "$selected_model" == *qwen3-coder-next* ]]; then
-    echo "using qwen3-coder-next"
-    extra_args="--temp 1.0 --top-p 0.95 --min-p 0.01 --top-k 40"
+    extra_args="--temp 1.0 --top-p 0.95 --min-p 0.01"
 elif [[ "$selected_model" == *qwen3.6-35b-a3b* ]]; then
-    echo "using qwen3.6-35b-a3b"
-    extra_args="--temp 1.0 --top-p 0.95 --top-k 20 --min-p 0.00"
+    extra_args="--temp 1.0 --top-p 0.95 --min-p 0.00"
 elif [[ "$selected_model" == *qwen3.6-27b* ]]; then
-    echo "Using qwen3.6-27b"
-    extra_args="--temp 0.7 --top-p 0.8 --top-k 20 --presence-penalty 1.5 --min-p 0.00"
+    extra_args="--temp 0.7 --top-p 0.8 --presence-penalty 1.5 --min-p 0.00"
 elif [[ "$selected_model" == *gemma-4-26B* ]]; then
-    echo "Using gemma-4-26B"
-    #unsloth suggested extra_args="--temp 1.0 --top-p 0.95 --top-k 64 --spec-type draft-mtp --spec-draft-n-max 3 -lv 4 "
-    extra_args="--temp 1.0 --top-p 0.95 --spec-type draft-mtp --spec-draft-n-max 3 -lv 4 "
+    extra_args="--temp 1.0 --top-p 0.95"
     mtp_models="--mmproj ./mmproj-BF16.gguf --model-draft ./mtp-gemma-4-26B-A4B-it-Q8_0.gguf"
 fi
 
 llama-server -m "$selected_model" ${mtp_models}\
- -np 1 --ctx-size $CONTEXT -ngl 999 -fa 1 --no-mmap --metrics --host 0.0.0.0 \
- --reasoning on \
+ -np 1 --ctx-size $CONTEXT -ngl 999 -fa on -lv 4\
+ --no-mmap --metrics --host 0.0.0.0 \
+ --spec-type draft-mtp --spec-draft-n-max 3 \
+ --reasoning on --reasoning-preserve \
+ --cache_reuse 256 \
  --log-colors on \
+ -t 30 \
  $extra_args
+ 
