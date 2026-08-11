@@ -45,6 +45,9 @@ elif [[ "$selected_model" == *gemma-4-26B* ]]; then
     mtp_models="--mmproj ./mmproj-BF16.gguf --model-draft ./mtp-gemma-4-26B-A4B-it-Q8_0.gguf"
 fi
 
+
+# decided to turn off context quantization --cache-type-k q8_0 --cache-type-v q8_0
+export ROCBLAS_USE_HIPBLASLT=1
 llama-server -m "$selected_model" ${mtp_models}\
  -np 1 --ctx-size $CONTEXT -ngl 999 -fa on -lv 4\
  --no-mmap --metrics --host 0.0.0.0 \
@@ -52,6 +55,6 @@ llama-server -m "$selected_model" ${mtp_models}\
  --reasoning on --reasoning-preserve \
  --cache_reuse 256 \
  --log-colors on \
- -t 30 \
+ -t 16 \
  $extra_args
  
